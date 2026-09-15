@@ -1,0 +1,18 @@
+{
+  "name": "barcode-billing-app",
+  "version": "2.0.0",
+  "description": "Barcode billing app with SQLite database, dashboard, and Bluetooth thermal printing",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barcode Billing App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-icon">🧾</span>
+      <div>
+        <div class="brand-name">BillEasy</div>
+        <div class="brand-sub" id="sidebarShopName">My Shop</div>
+      </div>
+    </div>
+
+    <nav class="sidenav">
+      <button class="nav-btn active" data-tab="dashboard" data-title="Dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </button>
+      <button class="nav-btn" data-tab="billing" data-title="New Bill">
+        <span class="nav-icon">🛒</span> Billing
+      </button>
+      <button class="nav-btn" data-tab="products" data-title="Products">
+        <span class="nav-icon">📦</span> Products
+      </button>
+      <button class="nav-btn" data-tab="history" data-title="Sales History">
+        <span class="nav-icon">🧾</span> Sales History
+      </button>
+      <button class="nav-btn" data-tab="printer" data-title="Printer Setup">
+        <span class="nav-icon">🖨</span> Printer Setup
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span>SQLite-powered · v2.0</span>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <div class="main-area">
+    <header class="topbar">
+      <h1 id="pageTitle">Dashboard</h1>
+      <button id="themeToggleBtn" class="theme-toggle" title="Toggle theme">🌙</button>
+    </header>
+
+    <main>
+
+      <!-- ===================== DASHBOARD TAB ===================== -->
+      <section id="dashboard" class="tab-panel active">
+        <div class="kpi-grid">
+          <div class="kpi-card accent-1">
+            <div class="kpi-label">Today's Revenue</div>
+            <div class="kpi-value" id="kpiTodayRevenue">₹0.00</div>
+          </div>
+          <div class="kpi-card accent-2">
+            <div class="kpi-label">Today's Orders</div>
+            <div class="kpi-value" id="kpiTodayOrders">0</div>
+          </div>
+          <div class="kpi-card accent-3">
+            <div class="kpi-label">All-Time Revenue</div>
+            <div class="kpi-value" id="kpiAllRevenue">₹0.00</div>
+          </div>
+          <div class="kpi-card accent-4">
+            <div class="kpi-label">Products</div>
+            <div class="kpi-value" id="kpiProducts">0</div>
+          </div>
+          <div class="kpi-card accent-5">
+            <div class="kpi-label">Low Stock Alerts</div>
+            <div class="kpi-value" id="kpiLowStock">0</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h2>Revenue — Last 7 Days</h2>
+            <div class="chart-box"><canvas id="trendChart"></canvas></div>
+          </div>
+          <div class="card">
+            <h2>Top Selling Products</h2>
+            <div class="chart-box"><canvas id="topProductsChart"></canvas></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h2>⚠️ Low Stock</h2>
+            <ul class="side-list" id="lowStockList"></ul>
+          </div>
+          <div class="card">
+            <h2>🕘 Recent Sales</h2>
+            <ul class="side-list" id="recentSalesList"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== BILLING TAB ===================== -->
+      <section id="billing" class="tab-panel">
+        <div class="grid-2">
+          <div class="card">
+            <h2>Scan / Enter Barcode</h2>
+            <div class="scan-row">
+              <input type="text" id="billBarcodeInput" placeholder="Scan or type barcode, then Enter" autofocus>
+              <button id="billScanBtn" class="btn">📷 Scan</button>
+            </div>
+            <div id="billScanner" class="scanner-box hidden"></div>
+            <p id="billScanMsg" class="msg"></p>
+          </div>
+
+          <div class="card">
+            <h2>Cart</h2>
+            <table class="cart-table">
+              <thead>
+                <tr><th>Item</th><th>Price</th><th>Qty</th><th>Total</th><th></th></tr>
+              </thead>
+              <tbody id="cartBody"></tbody>
+            </table>
+            <div class="cart-summary">
+              <div><span>Subtotal</span><span id="cartSubtotal">₹0.00</span></div>
+              <div>
+                <span>Tax %</span>
+                <input type="number" id="taxPercent" value="0" min="0" step="0.1" style="width:70px">
+              </div>
+              <div><span>Discount</span>
+                <input type="number" id="discountAmt" value="0" min="0" step="1" style="width:70px">
+              </div>
+              <div class="grand-total"><span>Grand Total</span><span id="cartGrandTotal">₹0.00</span></div>
+            </div>
+            <div class="customer-row">
+              <input type="text" id="customerName" placeholder="Customer name (optional)">
+              <input type="text" id="customerPhone" placeholder="Phone (optional)">
+            </div>
+            <div class="action-row">
+              <button id="clearCartBtn" class="btn secondary">Clear Cart</button>
+              <button id="checkoutBtn" class="btn primary">💳 Checkout & Print</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== PRODUCTS TAB ===================== -->
+      <section id="products" class="tab-panel">
+        <div class="grid-2">
+          <div class="card">
+            <h2>Add / Update Product</h2>
+            <form id="productForm">
+              <label>Barcode</label>
+              <div class="scan-row">
+                <input type="text" id="prodBarcode" required placeholder="Scan or type barcode">
+                <button type="button" id="prodScanBtn" class="btn">📷 Scan</button>
+              </div>
+              <div id="prodScanner" class="scanner-box hidden"></div>
+
+              <label>Product Name</label>
+              <input type="text" id="prodName" required placeholder="e.g. Parle-G 100g">
+
+              <label>Price (₹)</label>
+              <input type="number" id="prodPrice" required min="0" step="0.01">
+
+              <label>Stock Quantity</label>
+              <input type="number" id="prodStock" required min="0" step="1" value="0">
+
+              <button type="submit" class="btn primary">💾 Save Product</button>
+            </form>
+            <p id="prodMsg" class="msg"></p>
+          </div>
+
+          <div class="card">
+            <h2>Product List</h2>
+            <input type="text" id="productSearch" placeholder="Search by name or barcode...">
+            <table class="cart-table">
+              <thead><tr><th>Barcode</th><th>Name</th><th>Price</th><th>Stock</th><th></th></tr></thead>
+              <tbody id="productListBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== HISTORY TAB ===================== -->
+      <section id="history" class="tab-panel">
+        <div class="card">
+          <h2>Sales History</h2>
+          <table class="cart-table">
+            <thead><tr><th>Invoice #</th><th>Date</th><th>Customer</th><th>Items</th><th>Total</th><th></th></tr></thead>
+            <tbody id="historyBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================== PRINTER TAB ===================== -->
+      <section id="printer" class="tab-panel">
+        <div class="grid-2">
+          <div class="card">
+            <h2>Bluetooth Printer Setup</h2>
+            <p class="hint">Connect your Bluetooth (BLE) thermal receipt printer. Works over HTTPS or <code>localhost</code> in Chrome/Edge on desktop &amp; Android.</p>
+            <div id="printerStatus" class="status disconnected">Not connected</div>
+            <div class="action-row">
+              <button id="connectPrinterBtn" class="btn primary">🔵 Connect Printer</button>
+              <button id="disconnectPrinterBtn" class="btn secondary">Disconnect</button>
+              <button id="testPrintBtn" class="btn">🖨 Test Print</button>
+            </div>
+
+            <h3>Advanced (change only if your printer isn't detected)</h3>
+            <label>Service UUID</label>
+            <input type="text" id="serviceUuid" value="000018f0-0000-1000-8000-00805f9b34fb">
+            <label>Characteristic UUID</label>
+            <input type="text" id="charUuid" value="00002af1-0000-1000-8000-00805f9b34fb">
+            <label>Paper width</label>
+            <select id="paperWidth">
+              <option value="32">58mm (32 chars)</option>
+              <option value="48" selected>80mm (48 chars)</option>
+            </select>
+          </div>
+
+          <div class="card">
+            <h2>Shop Details</h2>
+            <p class="hint">Printed on the header/footer of every invoice.</p>
+            <form id="shopForm">
+              <label>Shop Name</label>
+              <input type="text" id="shopName" placeholder="My Shop">
+              <label>Address</label>
+              <input type="text" id="shopAddress" placeholder="123 Main Street">
+              <label>Phone</label>
+              <input type="text" id="shopPhone" placeholder="9999999999">
+              <label>GST No. (optional)</label>
+              <input type="text" id="shopGst" placeholder="GSTIN">
+              <label>Footer note</label>
+              <input type="text" id="shopFooter" placeholder="Thank you, visit again!">
+              <button type="submit" class="btn primary">💾 Save Shop Details</button>
+            </form>
+            <p id="shopMsg" class="msg"></p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="js/api.js"></script>
+<script src="js/barcode.js"></script>
+<script src="js/printer.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/billing.js"></script>
+<script src="js/products.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
